@@ -1,0 +1,1276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevTools Pro - All-in-One Developer Toolkit</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
+            crossorigin="anonymous"></script>
+    <style>
+        /* Base Dark Mode Variables (Default) */
+        :root {
+            --primary-color-start: #1a2a6c; /* Deep blue */
+            --primary-color-end: #b21f1f;   /* Deep red */
+            --accent-color-start: #ff8a00;  /* Orange */
+            --accent-color-end: #e52e71;    /* Pink/Red */
+            --text-color: #fff;             /* White text for dark background */
+            --background-start: linear-gradient(135deg, var(--primary-color-start), #0f1c4e, var(--primary-color-end), #0f1c4e, var(--primary-color-start)); /* More varied gradient */
+            --tool-bg: rgba(255, 255, 255, 0.08); /* Slightly less transparent for better readability */
+            --tool-border: rgba(255, 255, 255, 0.15); /* More visible border */
+            --input-bg: rgba(0, 0, 0, 0.3); /* Darker input background */
+            --input-border: rgba(255, 255, 255, 0.2); /* Input border in dark mode */
+            --result-box-bg: rgba(0, 0, 0, 0.3); /* Darker result box background */
+            --copy-btn-bg: rgba(255, 255, 255, 0.1); /* Copy button background */
+            --copy-btn-border: rgba(255, 255, 255, 0.3); /* Copy button border */
+        }
+
+        /* Light Mode Variables */
+        body.light-mode {
+            --primary-color-start: #e0eafc; /* Light blue start */
+            --primary-color-end: #cfdef3;   /* Lighter blue end */
+            --text-color: #333;             /* Dark text for light background */
+            --background-start: linear-gradient(135deg, var(--primary-color-start), var(--primary-color-end)); /* Simpler light gradient */
+            --tool-bg: rgba(255, 255, 255, 0.95); /* Nearly opaque white for tools */
+            --tool-border: rgba(0, 0, 0, 0.15); /* Subtle dark border */
+            --input-bg: #f0f0f0;            /* Light input background */
+            --input-border: rgba(0, 0, 0, 0.2); /* Input border in light mode */
+            --result-box-bg: #e0e0e0;       /* Light result box background */
+            --copy-btn-bg: rgba(0, 0, 0, 0.08); /* Copy button background in light mode */
+            --copy-btn-border: rgba(0, 0, 0, 0.2); /* Copy button border in light mode */
+        }
+
+        body {
+            background: var(--background-start);
+            color: var(--text-color);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            /* Smooth transition for all properties when theme changes */
+            transition: background 0.5s ease, color 0.5s ease,
+                        background-color 0.5s ease, border-color 0.5s ease,
+                        box-shadow 0.5s ease;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        h1 {
+            font-size: 3.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(45deg, var(--accent-color-start), var(--accent-color-end), #22c1c3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            /* Ensure text-fill-color is reapplied on theme change */
+            transition: -webkit-text-fill-color 0.5s ease;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+            transition: opacity 0.5s ease; /* Smooth transition for subtitle opacity */
+        }
+
+        .tabs {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .tab-btn {
+            background: var(--tool-bg); /* Use tool-bg for tab buttons */
+            border: 1px solid var(--tool-border); /* Use tool-border for tab buttons */
+            color: var(--text-color);
+            padding: 12px 25px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tab-btn:hover {
+            background: rgba(255, 255, 255, 0.15); /* Slightly brighter hover for dark mode */
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        body.light-mode .tab-btn:hover {
+            background: rgba(0, 0, 0, 0.05); /* Lighter hover for light mode */
+            border-color: rgba(0, 0, 0, 0.25);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(45deg, var(--accent-color-start), var(--accent-color-end));
+            border-color: transparent;
+            color: #fff; /* Ensure active tab text is white for contrast with gradient */
+        }
+        body.light-mode .tab-btn.active {
+            color: #fff; /* Still white in light mode for active tab */
+        }
+
+
+        .tool-container {
+            background: var(--tool-bg);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--tool-border);
+            transition: all 0.5s ease; /* Smooth transition for tool container */
+        }
+
+        .tool {
+            display: none;
+        }
+
+        .tool.active {
+            display: block;
+        }
+
+        .tool h2 {
+            margin-bottom: 25px;
+            font-size: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-color); /* Ensure heading color changes */
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group.color-picker-group {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="color"] {
+            width: 60px;
+            height: 60px;
+            padding: 0;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--text-color); /* Ensure label color changes */
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--input-border); /* Use input-border variable */
+            background: var(--input-bg); /* Use input-bg variable */
+            color: var(--text-color);
+            font-size: 1rem;
+            transition: all 0.3s ease; /* Smooth transition for input fields */
+        }
+
+        input::placeholder, textarea::placeholder {
+            color: rgba(255, 255, 255, 0.5); /* Dark mode placeholder */
+            transition: color 0.3s ease;
+        }
+        body.light-mode input::placeholder,
+        body.light-mode textarea::placeholder {
+            color: rgba(0, 0, 0, 0.4); /* Light mode placeholder */
+        }
+
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+            font-family: monospace;
+        }
+
+        button {
+            background: linear-gradient(45deg, #22c1c3, #1a2a6c); /* Fixed gradient for buttons */
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-box {
+            margin-top: 25px;
+            padding: 20px;
+            background: var(--result-box-bg); /* Use result-box-bg variable */
+            border-radius: 8px;
+            border: 1px solid var(--tool-border); /* Consistent border with tool-container */
+            position: relative;
+            transition: all 0.5s ease; /* Smooth transition for result box */
+        }
+
+        .result-box.success {
+            border-left: 5px solid #2ecc71;
+        }
+
+        .result-box.error {
+             border-left: 5px solid #e74c3c;
+        }
+
+        .result-box h3 {
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-color); /* Ensure heading color changes */
+        }
+
+        .result-content {
+            font-family: monospace;
+            white-space: pre-wrap;
+            word-break: break-all;
+            line-height: 1.6;
+            color: var(--text-color); /* Ensure result content color changes */
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px 0;
+            margin-top: 30px;
+            opacity: 0.7;
+            font-size: 0.9rem;
+            color: var(--text-color); /* Ensure footer color changes */
+            transition: opacity 0.5s ease, color 0.5s ease;
+        }
+
+        .copy-btn {
+            background: var(--copy-btn-bg); /* Use copy-btn-bg variable */
+            border: 1px solid var(--copy-btn-border); /* Use copy-btn-border variable */
+            color: var(--text-color);
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-left: auto;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            text-shadow: none;
+            -webkit-background-clip: padding-box;
+            -webkit-text-fill-color: var(--text-color); /* Ensure text color is standard */
+        }
+
+        .copy-btn:hover {
+            background: rgba(255,255,255,0.2); /* Slightly more visible on hover in dark mode */
+            transform: none;
+            box-shadow: none;
+        }
+        body.light-mode .copy-btn:hover {
+            background: rgba(0,0,0,0.15); /* Slightly darker on hover in light mode */
+        }
+
+
+        .char-counter {
+            font-size: 0.8rem;
+            text-align: right;
+            margin-top: 5px;
+            opacity: 0.7;
+            color: var(--text-color); /* Ensure char counter color changes */
+            transition: opacity 0.5s ease, color 0.5s ease;
+        }
+
+        #theme-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: transparent;
+            border: none;
+            color: var(--text-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.5s ease; /* Smooth transition for theme toggle icon */
+        }
+
+        #qr-code {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+
+        #qr-code canvas {
+            border: 1px solid var(--tool-border);
+            border-radius: 8px;
+            padding: 5px;
+            background: white; /* QR code background should always be white for scanning */
+            transition: border-color 0.5s ease;
+        }
+
+        /* Styles for Ad containers - Ensure they adapt to light/dark if needed */
+        .ad-container {
+            margin: 20px auto;
+            text-align: center;
+            max-width: 970px;
+            min-height: 90px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: var(--tool-bg); /* Use tool-bg for ad background */
+            border-radius: 8px;
+            padding: 10px;
+            border: 1px solid var(--tool-border); /* Consistent border */
+            transition: all 0.5s ease; /* Smooth transition for ad container */
+        }
+
+        .ad-container.responsive-ad {
+            min-height: 250px;
+        }
+
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .tab-btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            #theme-toggle {
+                position: static;
+                margin-top: 15px;
+            }
+
+            .ad-container {
+                max-width: 100%;
+                min-height: 50px;
+            }
+
+            .ad-container.responsive-ad {
+                min-height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>DevTools Pro</h1>
+            <p class="subtitle">Your enhanced all-in-one toolkit for calculations, conversions, and formatting</p>
+            <button id="theme-toggle" aria-label="Toggle theme"><i class="fas fa-moon"></i></button>
+        </header>
+
+        <div class="ad-container">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
+                 data-ad-slot="YOUR_AD_SLOT_ID_1"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+        <div class="tabs">
+            <button class="tab-btn active" data-tool="year-calculator">
+                <i class="fas fa-calculator"></i> Year Calculator
+            </button>
+            <button class="tab-btn" data-tool="hash-converter">
+                <i class="fas fa-hashtag"></i> Hash Converter
+            </button>
+            <button class="tab-btn" data-tool="binary-converter">
+                <i class="fas fa-code"></i> Binary Converter
+            </button>
+            <button class="tab-btn" data-tool="base64-converter">
+                <i class="fas fa-shield-alt"></i> Base64 Converter
+            </button>
+            <button class="tab-btn" data-tool="time-converter">
+                <i class="fas fa-clock"></i> Time Converter
+            </button>
+            <button class="tab-btn" data-tool="morse-converter">
+                <i class="fas fa-wifi"></i> Morse Code
+            </button>
+            <button class="tab-btn" data-tool="json-formatter">
+                <i class="fas fa-sitemap"></i> JSON Formatter
+            </button>
+            <button class="tab-btn" data-tool="color-converter">
+                <i class="fas fa-palette"></i> Color Converter
+            </button>
+            <button class="tab-btn" data-tool="url-converter">
+                <i class="fas fa-link"></i> URL Converter
+            </button>
+            <button class="tab-btn" data-tool="uuid-generator">
+                <i class="fas fa-id-card"></i> UUID Generator
+            </button>
+            <button class="tab-btn" data-tool="case-converter">
+                <i class="fas fa-text-height"></i> Case Converter
+            </button>
+        </div>
+
+        <div class="tool-container">
+            <div class="tool active" id="year-calculator">
+                <h2><i class="fas fa-calculator"></i> Year Calculator</h2>
+                <div class="grid">
+                    <div class="input-group">
+                        <label for="birth-year">Your Birth Year:</label>
+                        <input type="number" id="birth-year" min="1900" max="2100" value="1990">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="target-year">Target Year:</label>
+                        <input type="number" id="target-year" min="1900" max="2100" value="2023">
+                    </div>
+                </div>
+
+                <button id="calculate-age"><i class="fas fa-calculator"></i> Calculate Age</button>
+
+                <div class="result-box">
+                    <h3><i class="fas fa-chart-bar"></i> Results <button class="copy-btn" data-target="age-result">Copy</button></h3>
+                    <div class="result-content" id="age-result">Your results will appear here...</div>
+                </div>
+            </div>
+
+            <div class="tool" id="hash-converter">
+                <h2><i class="fas fa-hashtag"></i> Hash Converter</h2>
+                <div class="input-group">
+                    <label for="hash-input">Input Text:</label>
+                    <textarea id="hash-input" placeholder="Enter text to hash">Hello DevTools Pro!</textarea>
+                    <div class="char-counter" id="hash-counter">0 characters</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="hash-algorithm">Select Algorithm:</label>
+                    <select id="hash-algorithm">
+                        <option value="md5">MD5</option>
+                        <option value="sha1">SHA-1</option>
+                        <option value="sha256" selected>SHA-256</option>
+                        <option value="sha512">SHA-512</option>
+                    </select>
+                </div>
+
+                <button id="generate-hash"><i class="fas fa-bolt"></i> Generate Hash</button>
+
+                <div class="result-box">
+                    <h3><i class="fas fa-fingerprint"></i> Hash Result <button class="copy-btn" data-target="hash-result">Copy</button></h3>
+                    <div class="result-content" id="hash-result">Your hash will appear here...</div>
+                </div>
+            </div>
+
+            <div class="tool" id="binary-converter">
+                <h2><i class="fas fa-code"></i> Binary Converter</h2>
+                <div class="input-group">
+                    <label for="binary-input">Input Text or Binary:</label>
+                    <textarea id="binary-input" placeholder="Enter text to convert to binary, or binary to convert to text">01001000 01100101 01101100 01101100 01101111</textarea>
+                    <div class="char-counter" id="binary-counter">0 characters</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="binary-operation">Conversion Type:</label>
+                    <select id="binary-operation">
+                        <option value="text-to-binary">Text to Binary</option>
+                        <option value="binary-to-text">Binary to Text</option>
+                    </select>
+                </div>
+
+                <button id="convert-binary"><i class="fas fa-exchange-alt"></i> Convert</button>
+
+                <div class="result-box">
+                    <h3><i class="fas fa-terminal"></i> Conversion Result <button class="copy-btn" data-target="binary-result">Copy</button></h3>
+                    <div class="result-content" id="binary-result">Your conversion will appear here...</div>
+                </div>
+            </div>
+
+            <div class="tool" id="base64-converter">
+                <h2><i class="fas fa-shield-alt"></i> Base64 Converter</h2>
+                <div class="input-group">
+                    <label for="base64-input">Input Text or Base64:</label>
+                    <textarea id="base64-input" placeholder="Enter text to encode, or Base64 to decode">DevTools Pro is awesome!</textarea>
+                    <div class="char-counter" id="base64-counter">0 characters</div>
+                </div>
+                <div class="input-group">
+                    <label for="base64-operation">Conversion Type:</label>
+                    <select id="base64-operation">
+                        <option value="encode">Encode (Text to Base64)</option>
+                        <option value="decode">Decode (Base64 to Text)</option>
+                    </select>
+                </div>
+                <button id="convert-base64"><i class="fas fa-exchange-alt"></i> Convert</button>
+                <div class="result-box">
+                    <h3><i class="fas fa-file-alt"></i> Conversion Result <button class="copy-btn" data-target="base64-result">Copy</button></h3>
+                    <div class="result-content" id="base64-result">Your conversion will appear here...</div>
+                </div>
+            </div>
+
+            <div class="tool" id="time-converter">
+                <h2><i class="fas fa-clock"></i> Time Format Converter</h2>
+                <div class="grid">
+                    <div class="input-group">
+                        <label for="time-input">Enter Time (HH:MM):</label>
+                        <input type="text" id="time-input" placeholder="e.g., 14:30 or 2:30 PM" value="14:30">
+                    </div>
+
+                    <div class="input-group">
+                        <label for="time-format">Convert to:</label>
+                        <select id="time-format">
+                            <option value="to24">12-hour to 24-hour</option>
+                            <option value="to12">24-hour to 12-hour</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button id="convert-time"><i class="fas fa-sync-alt"></i> Convert Time</button>
+
+                <div class="result-box">
+                    <h3><i class="fas fa-history"></i> Converted Time <button class="copy-btn" data-target="time-result">Copy</button></h3>
+                    <div class="result-content" id="time-result">Your converted time will appear here...</div>
+                </div>
+            </div>
+
+            <div class="tool" id="morse-converter">
+                <h2><i class="fas fa-wifi"></i> Morse Code Translator</h2>
+                <div class="input-group">
+                    <label for="morse-input">Input Text or Morse Code:</label>
+                    <textarea id="morse-input" placeholder="Enter text to convert to Morse code, or Morse code to convert to text">.... . .-.. .-.. ---</textarea>
+                    <div class="char-counter" id="morse-counter">0 characters</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="morse-operation">Conversion Type:</label>
+                    <select id="morse-operation">
+                        <option value="text-to-morse">Text to Morse</option>
+                        <option value="morse-to-text">Morse to Text</option>
+                    </select>
+                </div>
+
+                <button id="convert-morse"><i class="fas fa-broadcast-tower"></i> Translate</button>
+
+                <div class="result-box">
+                    <h3><i class="fas fa-signal"></i> Translation Result <button class="copy-btn" data-target="morse-result">Copy</button></h3>
+                    <div class="result-content" id="morse-result">Your translation will appear here...</div>
+                </div>
+            </div>
+
+            <div class="tool" id="json-formatter">
+                <h2><i class="fas fa-sitemap"></i> JSON Formatter & Validator</h2>
+                <div class="input-group">
+                    <label for="json-input">Input JSON:</label>
+                    <textarea id="json-input" placeholder='Enter or paste your JSON here...'>{"name":"DevTools Pro","version":2.0,"features":["json","base64","color"]}</textarea>
+                    <div class="char-counter" id="json-counter">0 characters</div>
+                </div>
+                <button id="format-json"><i class="fas fa-align-left"></i> Format / Validate</button>
+                <div class="result-box" id="json-result-box">
+                    <h3><i class="fas fa-code-branch"></i> Formatted JSON <button class="copy-btn" data-target="json-result">Copy</button></h3>
+                    <div class="result-content" id="json-result">Your formatted JSON will appear here...</div>
+                </div>
+            </div>
+
+            <div class="tool" id="color-converter">
+                 <h2><i class="fas fa-palette"></i> Color Converter</h2>
+                 <div class="input-group color-picker-group">
+                    <input type="color" id="color-picker" value="#e52e71">
+                    <p>Select a color or enter a value in one of the formats below.</p>
+                 </div>
+                 <div class="grid">
+                     <div class="input-group">
+                         <label for="color-hex">HEX</label>
+                         <input type="text" id="color-hex" value="#e52e71">
+                     </div>
+                     <div class="input-group">
+                         <label for="color-rgb">RGB</label>
+                         <input type="text" id="color-rgb" value="rgb(229, 46, 113)">
+                     </div>
+                     <div class="input-group">
+                         <label for="color-hsl">HSL</label>
+                         <input type="text" id="color-hsl" value="hsl(335, 78%, 54%)">
+                     </div>
+                 </div>
+                 <div class="result-box">
+                    <h3><i class="fas fa-fill-drip"></i> Color Swatch</h3>
+                    <div class="result-content">
+                        <div id="color-swatch" style="width: 100px; height: 50px; border-radius: 8px; border: 1px solid var(--tool-border);"></div>
+                    </div>
+                 </div>
+            </div>
+
+            <div class="tool" id="url-converter">
+                <h2><i class="fas fa-link"></i> URL Encoder/Decoder</h2>
+                <div class="input-group">
+                    <label for="url-input">Input URL or Text:</label>
+                    <textarea id="url-input" placeholder="Enter URL or text to encode/decode">https://example.com/?param=value with spaces</textarea>
+                    <div class="char-counter" id="url-counter">0 characters</div>
+                </div>
+                <div class="input-group">
+                    <label for="url-operation">Operation Type:</label>
+                    <select id="url-operation">
+                        <option value="encode">Encode URL</option>
+                        <option value="decode">Decode URL</option>
+                        <option value="encode-component">Encode URI Component</option>
+                        <option value="decode-component">Decode URI Component</option>
+                    </select>
+                </div>
+                <button id="convert-url"><i class="fas fa-exchange-alt"></i> Convert URL</button>
+                <div class="result-box">
+                    <h3><i class="fas fa-globe"></i> Conversion Result <button class="copy-btn" data-target="url-result">Copy</button></h3>
+                    <div class="result-content" id="url-result">Your URL conversion will appear here...</div>
+                </div>
+            </div>
+
+            <div class="tool" id="uuid-generator">
+                <h2><i class="fas fa-id-card"></i> UUID Generator</h2>
+                <div class="input-group">
+                    <label for="uuid-count">Number of UUIDs:</label>
+                    <input type="number" id="uuid-count" min="1" max="100" value="1">
+                </div>
+                <button id="generate-uuid"><i class="fas fa-plus-circle"></i> Generate UUID</button>
+                <div class="result-box">
+                    <h3><i class="fas fa-fingerprint"></i> Generated UUIDs <button class="copy-btn" data-target="uuid-result">Copy</button></h3>
+                    <div class="result-content" id="uuid-result">Your UUIDs will appear here...</div>
+                </div>
+            </div>
+
+            <div class="tool" id="case-converter">
+                <h2><i class="fas fa-text-height"></i> Case Converter</h2>
+                <div class="input-group">
+                    <label for="case-input">Input Text:</label>
+                    <textarea id="case-input" placeholder="Enter text to convert its case">Hello World, This Is a Test.</textarea>
+                    <div class="char-counter" id="case-counter">0 characters</div>
+                </div>
+                <div class="input-group">
+                    <label for="case-type">Convert to:</label>
+                    <select id="case-type">
+                        <option value="upper">UPPER CASE</option>
+                        <option value="lower">lower case</option>
+                        <option value="camel">camelCase</option>
+                        <option value="pascal">PascalCase</option>
+                        <option value="snake">snake_case</option>
+                        <option value="kebab">kebab-case</option>
+                        <option value="title">Title Case</option>
+                        <option value="sentence">Sentence case.</option>
+                    </select>
+                </div>
+                <button id="convert-case"><i class="fas fa-font"></i> Convert Case</button>
+                <div class="result-box">
+                    <h3><i class="fas fa-text-width"></i> Converted Text <button class="copy-btn" data-target="case-result">Copy</button></h3>
+                    <div class="result-content" id="case-result">Your converted text will appear here...</div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="ad-container responsive-ad">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-client="ca-pub-YOUR_ADSENSE_PUBLISHER_ID"
+                 data-ad-slot="YOUR_AD_SLOT_ID_2"
+                 data-ad-format="auto"
+                 data-full-width-responsive="true"></ins>
+            <script>
+                 (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+        <footer>
+            &copy; 2025 DevTools Pro. All rights reserved.
+        </footer>
+    </div>
+    <script>
+        // JavaScript for tab switching
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabButtons = document.querySelectorAll('.tab-btn');
+            const tools = document.querySelectorAll('.tool');
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+
+            // Theme Toggle
+            themeToggle.addEventListener('click', () => {
+                body.classList.toggle('light-mode');
+                const isLightMode = body.classList.contains('light-mode');
+                themeToggle.innerHTML = isLightMode ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>';
+                localStorage.setItem('theme', isLightMode ? 'light' : 'dark');
+            });
+
+            // Apply saved theme on load
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'light') {
+                body.classList.add('light-mode');
+                themeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+            } else {
+                themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+            }
+
+            tabButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    tools.forEach(tool => tool.classList.remove('active'));
+
+                    button.classList.add('active');
+                    const targetToolId = button.dataset.tool;
+                    document.getElementById(targetToolId).classList.add('active');
+                });
+            });
+
+            // Initialize character counters for textareas
+            document.querySelectorAll('textarea').forEach(textarea => {
+                const counterId = textarea.id.replace('-input', '-counter');
+                const counterElement = document.getElementById(counterId);
+                if (counterElement) {
+                    textarea.addEventListener('input', () => {
+                        counterElement.textContent = `${textarea.value.length} characters`;
+                    });
+                    // Initial count
+                    counterElement.textContent = `${textarea.value.length} characters`;
+                }
+            });
+
+
+            // --- Year Calculator ---
+            document.getElementById('calculate-age').addEventListener('click', () => {
+                const birthYear = parseInt(document.getElementById('birth-year').value);
+                const targetYear = parseInt(document.getElementById('target-year').value);
+                const ageResult = document.getElementById('age-result');
+
+                if (isNaN(birthYear) || isNaN(targetYear) || birthYear < 1900 || targetYear < 1900) {
+                    ageResult.textContent = 'Please enter valid years (e.g., 1990, 2023).';
+                    ageResult.closest('.result-box').classList.remove('success');
+                    ageResult.closest('.result-box').classList.add('error');
+                    return;
+                }
+
+                const age = targetYear - birthYear;
+                ageResult.textContent = `If you were born in ${birthYear}, you would be ${age} years old in ${targetYear}.`;
+                ageResult.closest('.result-box').classList.remove('error');
+                ageResult.closest('.result-box').classList.add('success');
+            });
+
+            // --- Hash Converter ---
+            document.getElementById('generate-hash').addEventListener('click', async () => {
+                const text = document.getElementById('hash-input').value;
+                const algorithm = document.getElementById('hash-algorithm').value;
+                const hashResult = document.getElementById('hash-result');
+
+                if (!text) {
+                    hashResult.textContent = 'Please enter text to hash.';
+                    hashResult.closest('.result-box').classList.remove('success');
+                    hashResult.closest('.result-box').classList.add('error');
+                    return;
+                }
+
+                try {
+                    const textEncoder = new TextEncoder();
+                    const data = textEncoder.encode(text);
+                    let hashBuffer;
+
+                    if (algorithm === 'md5' || algorithm === 'sha1') {
+                         // Fallback for MD5/SHA-1 for demonstration, or use external lib
+                         hashResult.textContent = `Hashing algorithm ${algorithm.toUpperCase()} is not directly supported by Web Crypto API. Please use SHA-256 or SHA-512, or include a library for MD5/SHA1.`;
+                         hashResult.closest('.result-box').classList.remove('success');
+                         hashResult.closest('.result-box').classList.add('error');
+                         return;
+                    } else if (algorithm === 'sha256') {
+                        hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                    } else if (algorithm === 'sha512') {
+                        hashBuffer = await crypto.subtle.digest('SHA-512', data);
+                    }
+
+                    const hashArray = Array.from(new Uint8Array(hashBuffer));
+                    const hexHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+                    hashResult.textContent = hexHash;
+                    hashResult.closest('.result-box').classList.remove('error');
+                    hashResult.closest('.result-box').classList.add('success');
+                } catch (error) {
+                    hashResult.textContent = `Error generating hash: ${error.message}`;
+                    hashResult.closest('.result-box').classList.remove('success');
+                    hashResult.closest('.result-box').classList.add('error');
+                }
+            });
+
+            // --- Binary Converter ---
+            document.getElementById('convert-binary').addEventListener('click', () => {
+                const input = document.getElementById('binary-input').value.trim();
+                const operation = document.getElementById('binary-operation').value;
+                const binaryResult = document.getElementById('binary-result');
+
+                if (!input) {
+                    binaryResult.textContent = 'Please enter text or binary data.';
+                    binaryResult.closest('.result-box').classList.remove('success');
+                    binaryResult.closest('.result-box').classList.add('error');
+                    return;
+                }
+
+                let result = '';
+                try {
+                    if (operation === 'text-to-binary') {
+                        result = input.split('').map(char => {
+                            return char.charCodeAt(0).toString(2).padStart(8, '0');
+                        }).join(' ');
+                    } else { // binary-to-text
+                        const binaryChars = input.split(' ').filter(b => b.match(/^[01]{8}$/));
+                        if (binaryChars.length === 0) {
+                             throw new Error('Invalid binary format. Please use 8-bit binary numbers separated by spaces (e.g., 01001000 01100101).');
+                        }
+                        result = binaryChars.map(bin => {
+                            return String.fromCharCode(parseInt(bin, 2));
+                        }).join('');
+                    }
+                    binaryResult.textContent = result;
+                    binaryResult.closest('.result-box').classList.remove('error');
+                    binaryResult.closest('.result-box').classList.add('success');
+                } catch (error) {
+                    binaryResult.textContent = `Conversion Error: ${error.message}`;
+                    binaryResult.closest('.result-box').classList.remove('success');
+                    binaryResult.closest('.result-box').classList.add('error');
+                }
+            });
+
+            // --- Base64 Converter ---
+            document.getElementById('convert-base64').addEventListener('click', () => {
+                const input = document.getElementById('base64-input').value;
+                const operation = document.getElementById('base64-operation').value;
+                const base64Result = document.getElementById('base64-result');
+
+                if (!input) {
+                    base64Result.textContent = 'Please enter text or Base64 data.';
+                    base64Result.closest('.result-box').classList.remove('success');
+                    base64Result.closest('.result-box').classList.add('error');
+                    return;
+                }
+
+                let result = '';
+                try {
+                    if (operation === 'encode') {
+                        result = btoa(encodeURIComponent(input).replace(/%([0-9A-F]{2})/g,
+                            function toSolidBytes(match, p1) {
+                                return String.fromCharCode('0x' + p1);
+                            }));
+                    } else { // decode
+                        result = decodeURIComponent(atob(input).split('').map(function(c) {
+                            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                        }).join(''));
+                    }
+                    base64Result.textContent = result;
+                    base64Result.closest('.result-box').classList.remove('error');
+                    base64Result.closest('.result-box').classList.add('success');
+                } catch (error) {
+                    base64Result.textContent = `Conversion Error: Invalid Base64 string or input.`;
+                    base64Result.closest('.result-box').classList.remove('success');
+                    base64Result.closest('.result-box').classList.add('error');
+                }
+            });
+
+            // --- Time Converter ---
+            document.getElementById('convert-time').addEventListener('click', () => {
+                const inputTime = document.getElementById('time-input').value.trim();
+                const format = document.getElementById('time-format').value;
+                const timeResult = document.getElementById('time-result');
+
+                let result = '';
+                try {
+                    if (format === 'to24') { // 12-hour to 24-hour
+                        const parts = inputTime.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+                        if (!parts) throw new Error('Invalid 12-hour format. Use HH:MM AM/PM.');
+                        let hours = parseInt(parts[1]);
+                        const minutes = parts[2];
+                        const ampm = parts[3] ? parts[3].toUpperCase() : '';
+
+                        if (ampm === 'PM' && hours < 12) hours += 12;
+                        if (ampm === 'AM' && hours === 12) hours = 0; // Midnight
+
+                        result = `${String(hours).padStart(2, '0')}:${minutes.padStart(2, '0')}`;
+                    } else { // 24-hour to 12-hour
+                        const parts = inputTime.match(/(\d{1,2}):(\d{2})/);
+                        if (!parts) throw new Error('Invalid 24-hour format. Use HH:MM.');
+                        let hours = parseInt(parts[1]);
+                        const minutes = parts[2];
+
+                        if (hours < 0 || hours > 23 || parseInt(minutes) < 0 || parseInt(minutes) > 59) {
+                            throw new Error('Invalid 24-hour time values. Hours 0-23, Minutes 0-59.');
+                        }
+
+                        const ampm = hours >= 12 ? 'PM' : 'AM';
+                        hours = hours % 12;
+                        if (hours === 0) hours = 12; // 00:XX becomes 12:XX AM
+
+                        result = `${hours}:${minutes} ${ampm}`;
+                    }
+                    timeResult.textContent = result;
+                    timeResult.closest('.result-box').classList.remove('error');
+                    timeResult.closest('.result-box').classList.add('success');
+                } catch (error) {
+                    timeResult.textContent = `Conversion Error: ${error.message}`;
+                    timeResult.closest('.result-box').classList.remove('success');
+                    timeResult.closest('.result-box').classList.add('error');
+                }
+            });
+
+
+            // --- Morse Code Converter ---
+            // Simplified Morse Code mapping (not exhaustive, only common characters)
+            const morseMap = {
+                'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....', 'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.', 'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-', 'Y': '-.--', 'Z': '--..',
+                '0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-', '5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.',
+                '.': '.-.-.-', ',': '--..--', '?': '..--..', "'": '.----.', '!': '-.-.--', '/': '-..-.', '(': '-.--.', ')': '-.--.-', '&': '.-...', ':': '---...', ';': '-.-.-.', '=': '-...-', '+': '.-.-.', '-': '-....-', '_': '..--.-', '"': '.-..-.', '$': '...-..-', '@': '.--.-.', ' ': '/'
+            };
+            const reverseMorseMap = Object.fromEntries(Object.entries(morseMap).map(([key, value]) => [value, key]));
+
+            document.getElementById('convert-morse').addEventListener('click', () => {
+                const input = document.getElementById('morse-input').value.trim();
+                const operation = document.getElementById('morse-operation').value;
+                const morseResult = document.getElementById('morse-result');
+
+                if (!input) {
+                    morseResult.textContent = 'Please enter text or Morse code.';
+                    morseResult.closest('.result-box').classList.remove('success');
+                    morseResult.closest('.result-box').classList.add('error');
+                    return;
+                }
+
+                let result = '';
+                try {
+                    if (operation === 'text-to-morse') {
+                        result = input.toUpperCase().split('').map(char => {
+                            return morseMap[char] || ''; // Returns empty string if char not found
+                        }).join(' ');
+                        if (result.includes('  ')) { // Warn about unsupported characters
+                            morseResult.textContent = `Conversion to Morse: ${result}\n(Note: Some characters might not be supported and were omitted.)`;
+                        } else {
+                            morseResult.textContent = result;
+                        }
+                    } else { // morse-to-text
+                        const morseWords = input.split('   '); // Words separated by 3 spaces
+                        result = morseWords.map(word => {
+                            const morseChars = word.split(' '); // Characters separated by 1 space
+                            return morseChars.map(morseChar => {
+                                return reverseMorseMap[morseChar] || '?'; // Use '?' for unknown morse
+                            }).join('');
+                        }).join(' ');
+                        if (result.includes('?')) {
+                             morseResult.textContent = `Conversion from Morse: ${result}\n(Note: '?' indicates unsupported or invalid Morse sequences.)`;
+                        } else {
+                            morseResult.textContent = result;
+                        }
+                    }
+                    morseResult.closest('.result-box').classList.remove('error');
+                    morseResult.closest('.result-box').classList.add('success');
+                } catch (error) {
+                    morseResult.textContent = `Translation Error: ${error.message}`;
+                    morseResult.closest('.result-box').classList.remove('success');
+                    morseResult.closest('.result-box').classList.add('error');
+                }
+            });
+
+
+            // --- JSON Formatter ---
+            document.getElementById('format-json').addEventListener('click', () => {
+                const jsonInput = document.getElementById('json-input').value;
+                const jsonResult = document.getElementById('json-result');
+                const jsonResultBox = document.getElementById('json-result-box');
+
+                if (!jsonInput.trim()) {
+                    jsonResult.textContent = 'Please enter JSON to format.';
+                    jsonResultBox.classList.remove('success');
+                    jsonResultBox.classList.add('error');
+                    return;
+                }
+
+                try {
+                    const parsedJson = JSON.parse(jsonInput);
+                    const formattedJson = JSON.stringify(parsedJson, null, 2);
+                    jsonResult.textContent = formattedJson;
+                    jsonResultBox.classList.remove('error');
+                    jsonResultBox.classList.add('success');
+                } catch (error) {
+                    jsonResult.textContent = `Invalid JSON: ${error.message}`;
+                    jsonResultBox.classList.remove('success');
+                    jsonResultBox.classList.add('error');
+                }
+            });
+
+            // --- Color Converter ---
+            const colorPicker = document.getElementById('color-picker');
+            const colorHex = document.getElementById('color-hex');
+            const colorRgb = document.getElementById('color-rgb');
+            const colorHsl = document.getElementById('color-hsl');
+            const colorSwatch = document.getElementById('color-swatch');
+
+            function updateColors(hex) {
+                if (!hex) return;
+                colorPicker.value = hex;
+                colorHex.value = hex;
+
+                // HEX to RGB
+                const r = parseInt(hex.slice(1, 3), 16);
+                const g = parseInt(hex.slice(3, 5), 16);
+                const b = parseInt(hex.slice(5, 7), 16);
+                colorRgb.value = `rgb(${r}, ${g}, ${b})`;
+
+                // RGB to HSL
+                let h = 0, s = 0, l = 0;
+                let r_norm = r / 255;
+                let g_norm = g / 255;
+                let b_norm = b / 255;
+
+                const max = Math.max(r_norm, g_norm, b_norm);
+                const min = Math.min(r_norm, g_norm, b_norm);
+
+                l = (max + min) / 2;
+
+                if (max === min) {
+                    h = s = 0; // achromatic
+                } else {
+                    const d = max - min;
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch (max) {
+                        case r_norm: h = (g_norm - b_norm) / d + (g_norm < b_norm ? 6 : 0); break;
+                        case g_norm: h = (b_norm - r_norm) / d + 2; break;
+                        case b_norm: h = (r_norm - g_norm) / d + 4; break;
+                    }
+                    h /= 6;
+                }
+                colorHsl.value = `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+                colorSwatch.style.backgroundColor = hex;
+            }
+
+            // Initial update
+            updateColors(colorHex.value);
+
+            colorPicker.addEventListener('input', (e) => updateColors(e.target.value));
+            colorHex.addEventListener('input', (e) => {
+                let val = e.target.value.trim();
+                if (!val.startsWith('#')) val = '#' + val;
+                if (/^#([0-9A-F]{3}){1,2}$/i.test(val)) {
+                    updateColors(val);
+                }
+            });
+            colorRgb.addEventListener('input', (e) => {
+                const val = e.target.value.trim();
+                const match = val.match(/^rgb\((\d{1,3}),\s*(\d{1,3}),\s*(\d{1,3})\)$/i);
+                if (match) {
+                    const r = parseInt(match[1]);
+                    const g = parseInt(match[2]);
+                    const b = parseInt(match[3]);
+                    if (r >= 0 && r <= 255 && g >= 0 && g <= 255 && b >= 0 && b <= 255) {
+                        const hex = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+                        updateColors(hex);
+                    }
+                }
+            });
+            colorHsl.addEventListener('input', (e) => {
+                const val = e.target.value.trim();
+                const match = val.match(/^hsl\((\d{1,3}),\s*(\d{1,3})%,\s*(\d{1,3})%\)$/i);
+                if (match) {
+                    let h = parseInt(match[1]);
+                    let s = parseInt(match[2]) / 100;
+                    let l = parseInt(match[3]) / 100;
+
+                    if (h >= 0 && h <= 360 && s >= 0 && s <= 1 && l >= 0 && l <= 1) {
+                        // HSL to RGB (then to HEX)
+                        let c = (1 - Math.abs(2 * l - 1)) * s,
+                            x = c * (1 - Math.abs((h / 60) % 2 - 1)),
+                            m = l - c / 2,
+                            r = 0,
+                            g = 0,
+                            b = 0;
+
+                        if (0 <= h && h < 60) {
+                            r = c; g = x; b = 0;
+                        } else if (60 <= h && h < 120) {
+                            r = x; g = c; b = 0;
+                        } else if (120 <= h && h < 180) {
+                            r = 0; g = c; b = x;
+                        } else if (180 <= h && h < 240) {
+                            r = 0; g = x; b = c;
+                        } else if (240 <= h && h < 300) {
+                            r = x; g = 0; b = c;
+                        } else if (300 <= h && h < 360) {
+                            r = c; g = 0; b = x;
+                        }
+                        r = Math.round((r + m) * 255).toString(16).padStart(2, '0');
+                        g = Math.round((g + m) * 255).toString(16).padStart(2, '0');
+                        b = Math.round((b + m) * 255).toString(16).padStart(2, '0');
+
+                        updateColors(`#${r}${g}${b}`);
+                    }
+                }
+            });
+
+            // --- URL Encoder/Decoder ---
+            document.getElementById('convert-url').addEventListener('click', () => {
+                const input = document.getElementById('url-input').value;
+                const operation = document.getElementById('url-operation').value;
+                const urlResult = document.getElementById('url-result');
+
+                if (!input) {
+                    urlResult.textContent = 'Please enter URL or text.';
+                    urlResult.closest('.result-box').classList.remove('success');
+                    urlResult.closest('.result-box').classList.add('error');
+                    return;
+                }
+
+                let result = '';
+                try {
+                    switch (operation) {
+                        case 'encode':
+                            result = encodeURI(input);
+                            break;
+                        case 'decode':
+                            result = decodeURI(input);
+                            break;
+                        case 'encode-component':
+                            result = encodeURIComponent(input);
+                            break;
+                        case 'decode-component':
+                            result = decodeURIComponent(input);
+                            break;
+                    }
+                    urlResult.textContent = result;
+                    urlResult.closest('.result-box').classList.remove('error');
+                    urlResult.closest('.result-box').classList.add('success');
+                } catch (error) {
+                    urlResult.textContent = `Conversion Error: ${error.message}`;
+                    urlResult.closest('.result-box').classList.remove('success');
+                    urlResult.closest('.result-box').classList.add('error');
+                }
+            });
+
+            // --- UUID Generator ---
+            document.getElementById('generate-uuid').addEventListener('click', () => {
+                const count = parseInt(document.getElementById('uuid-count').value);
+                const uuidResult = document.getElementById('uuid-result');
+
+                if (isNaN(count) || count < 1 || count > 100) {
+                    uuidResult.textContent = 'Please enter a number between 1 and 100.';
+                    uuidResult.closest('.result-box').classList.remove('success');
+                    uuidResult.closest('.result-box').classList.add('error');
+                    return;
+                }
+
+                const uuids = [];
+                for (let i = 0; i < count; i++) {
+                    // Standard UUID v4 generation
+                    uuids.push('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+                        const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+                        return v.toString(16);
+                    }));
+                }
+                uuidResult.textContent = uuids.join('\n');
+                uuidResult.closest('.result-box').classList.remove('error');
+                uuidResult.closest('.result-box').classList.add('success');
+            });
+
+            // --- Case Converter ---
+            document.getElementById('convert-case').addEventListener('click', () => {
+                const input = document.getElementById('case-input').value;
+                const type = document.getElementById('case-type').value;
+                const caseResult = document.getElementById('case-result');
+
+                if (!input) {
+                    caseResult.textContent = 'Please enter text to convert its case.';
+                    caseResult.closest('.result-box').classList.remove('success');
+                    caseResult.closest('.result-box').classList.add('error');
+                    return;
+                }
+
+                let result = '';
+                switch (type) {
+                    case 'upper':
+                        result = input.toUpperCase();
+                        break;
+                    case 'lower':
+                        result = input.toLowerCase();
+                        break;
+                    case 'camel':
+                        result = input.replace(/(?:^\w|[A-Z]|\b\w)/g, (word, index) => {
+                            return index === 0 ? word.toLowerCase() : word.toUpperCase();
+                        }).replace(/\s+/g, '');
+                        break;
+                    case 'pascal':
+                        result = input.replace(/(?:^\w|[A-Z]|\b\w)/g, (word) => word.toUpperCase()).replace(/\s+/g, '');
+                        break;
+                    case 'snake':
+                        result = input.replace(/\s+/g, '_').toLowerCase();
+                        break;
+                    case 'kebab':
+                        result = input.replace(/\s+/g, '-').toLowerCase();
+                        break;
+                    case 'title':
+                        result = input.toLowerCase().split(' ').map((word) => {
+                            return word.charAt(0).toUpperCase() + word.slice(1);
+                        }).join(' ');
+                        break;
+                    case 'sentence':
+                        result = input.toLowerCase().replace(/(^\s*\w|[.!?]\s*\w)/g, (match) => match.toUpperCase());
+                        break;
+                }
+                caseResult.textContent = result;
+                caseResult.closest('.result-box').classList.remove('error');
+                caseResult.closest('.result-box').classList.add('success');
+            });
+
+            // --- Copy Button Functionality ---
+            document.querySelectorAll('.copy-btn').forEach(button => {
+                button.addEventListener('click', async (event) => {
+                    const targetId = event.target.dataset.target;
+                    const targetElement = document.getElementById(targetId);
+                    if (targetElement && targetElement.textContent.trim() !== '' && targetElement.textContent.trim() !== 'Your results will appear here...') {
+                        try {
+                            await navigator.clipboard.writeText(targetElement.textContent);
+                            button.textContent = 'Copied!';
+                            setTimeout(() => {
+                                button.innerHTML = 'Copy';
+                            }, 2000);
+                        } catch (err) {
+                            console.error('Failed to copy: ', err);
+                            alert('Failed to copy text. Please copy manually.');
+                        }
+                    } else {
+                        alert('Nothing to copy!');
+                    }
+                });
+            });
+
+            // Initial selection for year calculator
+            document.querySelector('.tab-btn[data-tool="year-calculator"]').click();
+        });
+    </script>
+</body>
+</html>
